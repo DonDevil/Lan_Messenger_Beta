@@ -1,0 +1,306 @@
+#Screen Manager
+MDScreenManager:
+    id: screen_manager
+    #Screen - Home Screen
+    MDScreen:
+        id: home_screen
+        name: ("home_screen")
+        md_bg_color: self.theme_cls.secondaryContainerColor
+        # Top Bar for Home Screen
+        MDTopAppBar:
+            type: "small"
+            pos_hint: {"center_x": .5, "center_y": .95}
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    id : theme_Style_icon
+                    icon: "weather-night"
+                    on_press :
+                        app.theme_cls.theme_style = "Dark" if app.theme_cls.theme_style == "Light" else "Light"
+                        theme_Style_icon.icon = "weather-night" if app.theme_cls.theme_style == "Dark" else "weather-sunny"
+            MDTopAppBarTitle:
+                text: "LAN Messenger"
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "window-close"
+                    on_release: app.stop()
+        # Create Room Fab Button
+        MDExtendedFabButton:
+            fab_state : "expand"
+            pos_hint : {'center_x': .3, 'center_y': .8}
+            on_release :
+                screen_manager.transition.direction = "left"
+                screen_manager.current = "create_room_screen"
+            MDExtendedFabButtonIcon:
+                icon: "account-group"
+            MDExtendedFabButtonText:
+                text: "Create Room"
+        # Join Room Fab Button
+        MDExtendedFabButton:
+            pos_hint : {'center_x': .7, 'center_y': .8}
+            fab_state : "expand"
+            on_release :
+                screen_manager.transition.direction = "left"
+                screen_manager.current = "create_room_screen"
+            MDExtendedFabButtonIcon:
+                icon: "account-arrow-right"
+            MDExtendedFabButtonText:
+                text: "Join Room"
+        #Major Divider
+        MDDivider:
+            orientation: "horizontal"
+            size_hint_x : .8
+            pos_hint: {'center_x':.5, 'center_y':.7}
+            color : (44, 46, 80, .8)
+        #Stat Display Card
+        MDCard:
+            id: display_card
+            style: "elevated"
+            padding: "4dp"
+            size_hint: .9, .5
+            pos_hint: {'center_x':.5, 'center_y':.42}
+            orientation : "vertical"
+            # Network Stat Heading 1
+            MDGridLayout:
+                adaptive_height: True
+                cols: 2
+                spacing: 10
+                padding: 10
+                #MDIcon:
+                #    icon : "lan"
+                MDLabel:
+                    text: "Network Stats"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                MyMDExtendedButton:
+                    id: refreshbtn
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_enter:
+                        refreshbtn.fab_state = "expand" if refreshbtn.fab_state == "collapse" else "collapse"
+                    on_leave:
+                        refreshbtn.fab_state = "collapse" if refreshbtn.fab_state == "expand" else "expand"
+                        refreshbtn_icon.icon = "refresh"
+                        refreshbtn_text.text = "Refresh Stat"
+                    on_release:
+                        app.refresh()
+                        ip_label.text = app.ip_address
+                        ssid_label.text = app.ssid
+                        ssid_icon.icon_color= (0, 1, 0, 1) if app.ssid!="Not Connected" else (1, 0, 0, 1)
+                        ip_address_icon.icon_color= (0, 1, 0, 1) \
+                        if app.ip_address!="Not Connected" else (1, 0, 0, 1)
+                        refreshbtn_icon.icon = "access-point-check"
+                        refreshbtn_text.text = "Complete"
+                        app.info_pass("Refreshed Successfully")
+                    MDExtendedFabButtonIcon:
+                        id:refreshbtn_icon
+                        icon: "refresh"
+                    MDExtendedFabButtonText:
+                        id:refreshbtn_text
+                        text: "Refresh Stat"
+            #underline for heading 1
+            MDDivider:
+                pos_hint: {'center_x':.1, 'center_y':.15}
+                size_hint_x: .15
+            # SSID Display grid
+            MDGridLayout:
+                id : ssid_grid
+                adaptive_height: True
+                cols: 3
+                spacing: 10
+                padding: 10
+                MDIcon:
+                    id:ssid_icon
+                    icon : "router-network-wireless"
+                    theme_icon_color: "Custom"
+                    icon_color: (0, 1, 0, 1) if app.ssid!="Not Connected" else (1, 0, 0, 1)
+                MDLabel:
+                    text: "Network SSID"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                MDLabel:
+                    id:ssid_label
+                    text: app.ssid
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                    allow_copy : True
+                    allow_selection : True
+                    on_copy: app.info_pass("Copied to Clipboard")
+            # IP Address display grid
+            MDGridLayout:
+                id: ip_address_grid
+                adaptive_height: True
+                cols: 3
+                spacing: 10
+                padding: 10
+                MDIcon:
+                    id: ip_address_icon
+                    icon : "ip-network-outline"
+                    icon_color: (0, 1, 0, 1) if app.ip_address!="Not Connected" else (1, 0, 0, 1)
+                MDLabel:
+                    text: "IP Address"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                MDLabel:
+                    id:ip_label
+                    text: app.ip_address
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                    allow_copy : True
+                    allow_selection : True
+                    on_copy: app.info_pass("Copied to Clipboard")
+            #Port Number Display Grid
+            MDGridLayout:
+                id : port_grid
+                adaptive_height: True
+                cols: 3
+                spacing: 10
+                padding: 10
+                MDIcon:
+                    id: port_icon
+                    icon : "export"
+                MDLabel:
+                    text: "Port Number"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                MDLabel:
+                    id: port_label
+                    text: "5000"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                    allow_copy : True
+                    allow_selection : True
+                    on_copy: app.info_pass("Copied to Clipboard")
+            # Divider Major Display Card
+            MDDivider:
+            # Note Section Heading grid
+            MDGridLayout:
+                adaptive_height: True
+                cols: 2
+                spacing: 10
+                padding: (10,30,0,10)
+                MDIcon:
+                    icon : "alert"
+                    theme_icon_color : "Custom"
+                    icon_color : (1,1,0,1)
+                MDLabel:
+                    text: "Note"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+            #Note Section Underline Divider
+            MDDivider:
+                pos_hint: {'center_x':.1, 'center_y':.15}
+                size_hint_x: .15
+            #Note Label
+            MDLabel:
+                text: "     Make sure all the devices are in the same network as you."
+                font_style : "Title"
+                role : "small"
+                halign: 'left'
+        #Bottom Navigation Bar
+        MDNavigationBar:
+            # Create Room Element
+            MDNavigationItem:
+                on_release :
+                    screen_manager.transition.direction = "left"
+                    screen_manager.current = "create_room_screen"
+                MDNavigationItemIcon:
+                    icon : 'account-group'
+                MDNavigationItemLabel:
+                    text: 'Create Room'
+            #Join Room Element
+            MDNavigationItem:
+                on_release :
+                    screen_manager.transition.direction = "left"
+                    screen_manager.current = "lobby_screen"
+                MDNavigationItemIcon:
+                    icon : 'account-arrow-right'
+                MDNavigationItemLabel:
+                    text: 'Join Room'
+            #Settings Page Element
+            MDNavigationItem:
+                on_release :
+                    screen_manager.transition.direction = "left"
+                    screen_manager.current = "settings_screen"
+                MDNavigationItemIcon:
+                    icon : 'cogs'
+                MDNavigationItemLabel:
+                    text: 'Settings'
+    # Join list of available servers screen
+    MDScreen:
+        name: ("lobby_screen")
+        md_bg_color: self.theme_cls.secondaryContainerColor
+        MDTopAppBar:
+            type: "small"
+            pos_hint: {"center_x": .5, "center_y": .95}
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "backburger"
+                    on_release :
+                        screen_manager.transition.direction = "right"
+                        screen_manager.current = "home_screen"
+            MDTopAppBarTitle:
+                text: "Join Room"
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "information-outline"
+    #create room screen
+    MDScreen:
+        name: ("create_room_screen")
+        md_bg_color: self.theme_cls.secondaryContainerColor
+        MDTopAppBar:
+            type: "small"
+            pos_hint: {"center_x": .5, "center_y": .95}
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "backburger"
+                    on_release :
+                        screen_manager.transition.direction = "right"
+                        screen_manager.current = "home_screen"
+            MDTopAppBarTitle:
+                text: "Create Room"
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "information-outline"
+    #lobby screen chat messages
+    MDScreen:
+        name: ("chat_screen")
+        md_bg_color: self.theme_cls.secondaryContainerColor
+        MDTopAppBar:
+            type: "small"
+            pos_hint: {"center_x": .5, "center_y": .95}
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "backburger"
+                    on_release :
+                        screen_manager.transition.direction = "right"
+                        screen_manager.current = "home_screen"
+            MDTopAppBarTitle:
+                text: "Lobby"
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "information-outline"
+    #Settings Screen
+    MDScreen:
+        name: ("settings_screen")
+        md_bg_color: self.theme_cls.secondaryContainerColor
+        MDTopAppBar:
+            type: "small"
+            pos_hint: {"center_x": .5, "center_y": .95}
+            MDTopAppBarLeadingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "backburger"
+                    on_release :
+                        screen_manager.transition.direction = "right"
+                        screen_manager.current = "home_screen"
+            MDTopAppBarTitle:
+                text: "Settings"
+            MDTopAppBarTrailingButtonContainer:
+                MDActionTopAppBarButton:
+                    icon: "information-outline"
