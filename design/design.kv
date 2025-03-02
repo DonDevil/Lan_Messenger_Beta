@@ -254,16 +254,33 @@ MDScreenManager:
             MDTopAppBarTrailingButtonContainer:
                 MDActionTopAppBarButton:
                     icon: "information-outline"
-        MDButton:
-            text: "Search"
-            on_release: app.search()
-            pos_hint: {"center_x":.5, "center_y": .5}
-        MDLinearProgressIndicator:
-            id: scan_progress
-            size_hint_x: .5
-            value: 0
-            pos_hint: {'center_x': .5, 'center_y': .4}
-            on_value:
+        MDBoxLayout:
+            orientation: 'vertical'
+            spacing: "12dp"
+            padding: "12dp"
+            pos_hint: {"top": 0.85}
+            MDCard:
+                style: "elevated"
+                padding: "8dp"
+                size_hint: 1, None
+                height: "100dp"
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    spacing: "8dp"
+                    MDLabel:
+                        text: "Available Servers"
+                        font_style: "Title"
+                    MDLinearProgressIndicator:
+                        id: scan_progress
+                        value: 0
+                    MDButton:
+                        text: "Search"
+                        on_release: app.search()
+            MDScrollView:
+                MDList:
+                    id: server_list
+                    spacing: "12dp"
+                    padding: "12dp"
     #create room screen
     MDScreen:
         name: ("create_room_screen")

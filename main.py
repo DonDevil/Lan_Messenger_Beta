@@ -3,14 +3,27 @@ Config.set('graphics', 'borderless', 1)
 
 from kivy.lang import Builder
 from kivy.metrics import dp
+from kivy.clock import Clock
 from kivy.storage.jsonstore import JsonStore
 
 from kivymd.app import MDApp
+from kivymd.uix.list import MDList
 from kivymd.uix.button import MDExtendedFabButton
 from kivymd.uix.behaviors import HoverBehavior
-from kivymd.uix.snackbar import MDSnackbar, MDSnackbarSupportingText,MDSnackbarButtonContainer
-from kivymd.uix.snackbar import MDSnackbarActionButtonText,MDSnackbarActionButton,MDSnackbarCloseButton
-
+from kivymd.uix.list import (
+    MDList,
+    MDListItem,
+    MDListItemHeadlineText,
+    MDListItemLeadingIcon,
+)
+from kivymd.uix.snackbar import (
+    MDSnackbar,
+    MDSnackbarSupportingText,
+    MDSnackbarButtonContainer,
+    MDSnackbarActionButtonText,
+    MDSnackbarActionButton,
+    MDSnackbarCloseButton
+)
 from threading import Thread
 import ipaddress
 import socket
@@ -45,6 +58,7 @@ class UI(MDApp):
                 self.info_pass(f"Error: {e}")
         else:
             self.info_pass("Server is already up and running")
+
     def stop_server(self):
         if self.server==None:
             self.info_pass("Server not yet started")
@@ -56,9 +70,36 @@ class UI(MDApp):
                 self.info_pass("Server is down")
             except Exception as e:
                 self.info_pass(f"Failed to stop server: {e}")
+    def add_server_to_list(self, ip_str):
+        """Add a server to the GUI list"""
+        def add_item(dt):
+            server_item = MDListItem(
+                MDListItemLeadingIcon(
+                    icon="server-network",
+                ),
+                MDListItemHeadlineText(
+                    text=f"Server at {ip_str}",
+                ),
+                on_release=lambda x: self.connect_to_server(ip_str)
+            )
+            self.root.ids.server_list.add_widget(server_item)
+            print(f"Added server to list:{ip_str}")
+        Clock.schedule_once(add_item)
+    
+    def connect_to_server(self, ip):
+        """Handle server connection"""
+        try:
+            self.client = Client(ip, self.port, "User")  # You might want to get username from settings
+            self.client.connect()
+            self.info_pass(f"Connected to server at {ip}")
+            self.root.current = "chat_screen"  # Switch to chat screen when implemented
+        except Exception as e:
+            self.info_pass(f"Connection failed: {e}")
+
     def refresh(self, *args):
         self.ssid = find_ssid()
         self.ip_address = find_ip_address()
+
     def info_pass(self,text, *args):
         MDSnackbar(
             MDSnackbarSupportingText(
@@ -70,7 +111,11 @@ class UI(MDApp):
             pos_hint={"center_x": 0.5},
             size_hint_x=0.5,
         ).open()
+
     def search(self):
+        self.server_list = []
+        self.root.ids.server_list.clear_widgets()
+        self.root.ids.scan_progress.value = 0
         Thread(target=self.find_server_on_lan, args=[self.port]).start()
         
     def find_server_on_lan(self,port,timeout=0.1):
@@ -89,11 +134,12 @@ class UI(MDApp):
                     s.send("asdasd:`249942".encode())
                     print(f"Server found at {ip_str}")
                     self.server_list.append(ip_str)
+                    Clock.schedule_once(lambda dt, ip_str=ip_str: self.add_server_to_list(ip_str))
                 except (socket.timeout, ConnectionRefusedError):
                     pass
                 finally:
                     value+=1
-                    self.root.ids.scan_progress.value = int((value/255) * 100)    
+                    self.root.ids.scan_progress.value = int((value/255) * 100) 
     
 if __name__ == '__main__' :
     UI().run()

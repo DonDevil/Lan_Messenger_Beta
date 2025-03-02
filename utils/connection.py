@@ -45,28 +45,27 @@ class Server:
 
     
     def __listen_for_clients_message(self, client_socket,ip):
-        ip = ip
         while self.__listen:
             if self.__socket_object == None:
                 break
             try:
-                msg = client_socket.recv(1024).decode()
-            except Exception as e:
-                self.__client_sockets_list.remove(client_socket)
-                self.__show_message(ip=ip,disconnected=True)
-            else:
+                msg = client_socket.recv(1024).decode('utf-8')
+                if not msg:
+                    break
                 msg = msg.replace(self.__separator, ":")
                 if msg.split(":")[1] == "`249942":
-                    client_socket.send("`249942".encode())
+                    client_socket.send("`249942".encode('utf-8'))
                     client_socket.close()
                     self.__client_sockets_list.remove(client_socket)
                     self.__show_message(ip=ip,disconnected=True)
                     break
-            
+                for client_socket_i in self.__client_sockets_list:
+                    client_socket_i.send(msg.encode('utf-8'))
+            except Exception as e:
+                self.__client_sockets_list.remove(client_socket)
+                self.__show_message(ip=ip,disconnected=True)
+                break
 
-            for client_socket_i in self.__client_sockets_list:
-                client_socket_i.send(msg.encode())
-    
     def __accept_clients_connection(self):
         while self.__listen:
             try:
@@ -84,7 +83,6 @@ class Client:
         self.connection_port = server_port
         self.__separator = "<SEP>"
         self.__connect_server = False
-        
         self.__name = name
         init()
         self.__colors = [Fore.BLUE, Fore.CYAN, Fore.GREEN, Fore.LIGHTBLACK_EX, 
@@ -115,7 +113,7 @@ class Client:
     def __listen_to_server(self):
         while self.__connect_server:
             try:
-                message = self.__socket_object.recv(1024).decode()
+                message = self.__socket_object.recv(1024).decode('utf-8')
                 if message == "`249942":
                     print("[-] Disconnected.")
                     break
@@ -140,7 +138,7 @@ class Client:
         __date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         __message_to_send = f"{self.__text_color}[{__date_now}] {self.__name}{self.__separator}{__message_to_send}{Fore.RESET}"
         try:
-            self.__socket_object.send(__message_to_send.encode())
+            self.__socket_object.send(__message_to_send.encode('utf-8'))
         except:
             print(" 4/ / Connection Error! / /")      
 
