@@ -42,22 +42,6 @@ class Server:
         self.__socket_object.close()
         sys.exit()
 
-    def find_ip_address(self):
-        try:
-            c = socket.gethostbyname(socket.gethostname())
-        except:
-            c = "Not Connected"
-        return c
-
-
-    def find_ssid(self):
-        interface = subprocess.check_output(['netsh', 'WLAN', 'show', 'interfaces'])
-        data = interface.decode('utf-8')
-        try:
-            ssid = data[data.find("SSID"):data.find("BSSID")].split(":")[1].strip()
-        except:
-            ssid = "Not Connected"
-        return ssid
 
     
     def __listen_for_clients_message(self, client_socket,ip):
@@ -160,6 +144,22 @@ class Client:
         except:
             print(" 4/ / Connection Error! / /")      
 
+def find_ip_address():
+    try:
+        c = socket.gethostbyname(socket.gethostname())
+    except:
+        c = "Not Connected"
+    return c
+
+
+def find_ssid():
+    interface = subprocess.check_output(['netsh', 'WLAN', 'show', 'interfaces'])
+    data = interface.decode('utf-8')
+    try:
+        ssid = data[data.find("SSID"):data.find("BSSID")].split(":")[1].strip()
+    except:
+        ssid = "Not Connected"
+    return ssid
 
 
 '''
