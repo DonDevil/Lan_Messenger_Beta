@@ -15,8 +15,10 @@ MDScreenManager:
                     id : theme_Style_icon
                     icon: "weather-night"
                     on_press :
-                        app.theme_cls.theme_style = "Dark" if app.theme_cls.theme_style == "Light" else "Light"
-                        theme_Style_icon.icon = "weather-night" if app.theme_cls.theme_style == "Dark" else "weather-sunny"
+                        app.theme_cls.theme_style = "Dark" \
+                        if app.theme_cls.theme_style == "Light" else "Light"
+                        theme_Style_icon.icon = "weather-night" \
+                        if app.theme_cls.theme_style == "Dark" else "weather-sunny"
             MDTopAppBarTitle:
                 text: "LAN Messenger"
             MDTopAppBarTrailingButtonContainer:
@@ -268,6 +270,118 @@ MDScreenManager:
             MDTopAppBarTrailingButtonContainer:
                 MDActionTopAppBarButton:
                     icon: "information-outline"
+        MDCard:
+            style: "elevated"
+            padding: "4dp"
+            size_hint: .9, .5
+            pos_hint: {'center_x':.5, 'center_y':.62}
+            orientation : "vertical"# Network Stat Heading 1
+            MDGridLayout:
+                adaptive_height: True
+                cols: 2
+                spacing: 10
+                padding: 10
+                MDLabel:
+                    text: "Room Configuration"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                MyMDExtendedButton:
+                    id: start_serverbtn
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_enter:
+                        start_serverbtn.fab_state = "expand" \
+                        if start_serverbtn.fab_state == "collapse" else "collapse"
+                    on_leave:
+                        start_serverbtn.fab_state = "collapse" \
+                        if start_serverbtn.fab_state == "expand" else "expand"
+                    on_release:
+                        start_serverbtn_icon.icon = "server-network" \
+                        if start_serverbtn_icon.icon=="server-network-off" else "server-network-off"
+                        start_serverbtn_text.text = "Publish Server" \
+                        if start_serverbtn_text.text == "Shutdown Server" else "Shutdown Server"
+                        app.stop_server() if app.server_state=="Running" \
+                        else app.start_server(server_ip_number_input.text, server_port_number_input.text)
+                    MDExtendedFabButtonIcon:
+                        id:start_serverbtn_icon
+                        icon: "server-network"
+                    MDExtendedFabButtonText:
+                        id:start_serverbtn_text
+                        text: "Publish Server"
+            #underline for heading 1
+            MDDivider:
+                pos_hint: {'center_x':.1, 'center_y':.15}
+                size_hint_x: .15
+            # SSID Display grid
+            MDGridLayout:
+                id : ssid_grid_server
+                adaptive_height: True
+                cols: 3
+                spacing: 10
+                padding: 10
+                MDIcon:
+                    id:ssid_icon_server
+                    icon : "router-network-wireless"
+                    theme_icon_color: "Custom"
+                    icon_color: (0, 1, 0, 1) if app.ssid!="Not Connected" else (1, 0, 0, 1)
+                MDLabel:
+                    text: "Network SSID"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                MDLabel:
+                    id:ssid_label_server
+                    text: app.ssid
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                    allow_copy : True
+                    allow_selection : True
+                    on_copy: app.info_pass("Copied to Clipboard")
+            # IP Address display grid
+            MDGridLayout:
+                id: ip_address_grid_server
+                adaptive_height: True
+                cols: 3
+                spacing: 10
+                padding: 10
+                MDIcon:
+                    id: ip_address_icon_server
+                    icon : "ip-network-outline"
+                MDLabel:
+                    text: "IP Address"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                MDTextField:
+                    id: server_ip_number_input
+                    mode: "outlined"
+                    MDTextFieldHintText:
+                        text: "Host Address"
+                    MDTextFieldHelperText:
+                        text: "e.g:192.168.255.255"
+            #Port Number Display Grid
+            MDGridLayout:
+                id : port_grid_server
+                adaptive_height: True
+                cols: 3
+                spacing: 10
+                padding: 10
+                MDIcon:
+                    id: port_icon_server
+                    icon : "export"
+                MDLabel:
+                    text: "Port Number"
+                    font_style : "Title"
+                    role : "medium"
+                    halign: "auto"
+                MDTextField:
+                    id: server_port_number_input
+                    mode: "outlined"
+                    MDTextFieldHintText:
+                        text: "Host Port Number"
+                    MDTextFieldHelperText:
+                        text: "default: 5000"
     #lobby screen chat messages
     MDScreen:
         name: ("chat_screen")

@@ -7,10 +7,11 @@ import socket
 import random
 from threading import Thread
 from datetime import datetime
-from colorama import Fore, init, Back
+from colorama import Fore, init
+import subprocess
 
 class Server:
-    def __init__(self, host_ip, host_port=5002, queue=5):
+    def __init__(self, host_ip, host_port=5000, queue=5):
         self.ip = host_ip
         self.port = host_port
 
@@ -40,6 +41,23 @@ class Server:
         self.__listen = False
         self.__socket_object.close()
         sys.exit()
+
+    def find_ip_address(self):
+        try:
+            c = socket.gethostbyname(socket.gethostname())
+        except:
+            c = "Not Connected"
+        return c
+
+
+    def find_ssid(self):
+        interface = subprocess.check_output(['netsh', 'WLAN', 'show', 'interfaces'])
+        data = interface.decode('utf-8')
+        try:
+            ssid = data[data.find("SSID"):data.find("BSSID")].split(":")[1].strip()
+        except:
+            ssid = "Not Connected"
+        return ssid
 
     
     def __listen_for_clients_message(self, client_socket,ip):
