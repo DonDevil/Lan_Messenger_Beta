@@ -1,3 +1,19 @@
+#Message Card Class
+<MessageCard>
+    padding:"8dp"
+    size_hint: None, None
+    size: "280dp", "60dp"
+    radius: "12dp"
+    pos_hint: {"right":0.98} if root.is_user else {"left":0.02}
+    MDLabel:
+        text: root.message
+        theme_text_color: "Custom"
+        text_color: "white"
+        padding: "8dp"
+        size_hint_y: None
+        height: self.texture_size[1]
+        adaptive_height: True
+
 #Screen Manager
 MDScreenManager:
     id: screen_manager
@@ -263,19 +279,26 @@ MDScreenManager:
                 style: "elevated"
                 padding: "8dp"
                 size_hint: 1, None
-                height: "100dp"
+                height: "120dp"
                 MDBoxLayout:
                     orientation: 'vertical'
                     spacing: "8dp"
                     MDLabel:
-                        text: "Available Servers"
-                        font_style: "Title"
+                        text: "Servers List"
+                        font_style: "Body"
+                        halign: "center"
                     MDLinearProgressIndicator:
                         id: scan_progress
                         value: 0
+                        radius: "6dp"
+                        size_hint: .9, None
+                        height: "8dp"
+                        pos_hint: {"center_x": .5}
                     MDButton:
-                        text: "Search"
                         on_release: app.search()
+                        pos_hint: {"center_x": .5}
+                        MDButtonText:
+                            text: "Scan for Servers"
             MDScrollView:
                 MDList:
                     id: server_list
@@ -429,6 +452,43 @@ MDScreenManager:
             MDTopAppBarTrailingButtonContainer:
                 MDActionTopAppBarButton:
                     icon: "information-outline"
+        MDScrollView:
+            do_scroll_x:False
+            size_hint_x: 1
+            size_hint_y: .78
+            pos_hint: {"center_x": .5, "top": .894}
+            MDBoxLayout:
+                id: chat_area
+                orientation: 'vertical'
+                adaptive_height: True
+                padding: "12dp"
+                spacing: "12dp"
+        MDCard:
+            size_hint_y: None
+            height: "80dp"
+            padding: "8dp"
+            md_bg_color: app.theme_cls.surfaceContainerColor
+
+            MDBoxLayout:
+                orientation: 'horizontal'
+                padding: "8dp"
+                spacing: "8dp"
+
+                MDTextField:
+                    id: message_entry
+                    mode: "outlined"
+                    hint_text: "Type a message..."
+                    multiline: False
+                    height: "20dp"
+                    radius: "28dp"
+                    on_text_validate: app.send_message()
+                MDButton:
+                    style: "elevated"
+                    text_color: (0,0,0,0)
+                    pos_hint: {"center_y": .5}
+                    on_release: app.send_message()
+                    MDButtonText:
+                        text: "Send"
     #Settings Screen
     MDScreen:
         name: ("settings_screen")

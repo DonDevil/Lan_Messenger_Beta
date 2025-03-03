@@ -5,11 +5,13 @@ from kivy.lang import Builder
 from kivy.metrics import dp
 from kivy.clock import Clock
 from kivy.storage.jsonstore import JsonStore
+from kivy.properties import StringProperty, BooleanProperty
 
 from kivymd.app import MDApp
-from kivymd.uix.list import MDList
-from kivymd.uix.button import MDExtendedFabButton
+from kivymd.uix.card import MDCard
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.behaviors import HoverBehavior
+from kivymd.uix.button import MDExtendedFabButton
 from kivymd.uix.list import (
     MDList,
     MDListItem,
@@ -32,6 +34,15 @@ from utils.connection import Server, Client, find_ip_address, find_ssid
 
 class MyMDExtendedButton(MDExtendedFabButton, HoverBehavior):
     pass
+
+class MessageCard(MDCard):
+    message = StringProperty()
+    is_user = BooleanProperty()
+
+    def __init__(self, message, is_user, **kwargs):
+        super().__init__(**kwargs)
+        self.message = message
+        self.is_user = is_user
 
 class UI(MDApp):
     def build(self):
@@ -95,6 +106,15 @@ class UI(MDApp):
             self.root.current = "chat_screen"  # Switch to chat screen when implemented
         except Exception as e:
             self.info_pass(f"Connection failed: {e}")
+
+    def send_message(self):
+        message_entry = self.root.ids.message_entry
+        message = message_entry.text.strip()
+        if message:
+            chat_area = self.root.ids.chat_area
+            m = MessageCard(message=message, is_user=True)
+            chat_area.add_widget(m)
+            message_entry.text = ""
 
     def refresh(self, *args):
         self.ssid = find_ssid()
