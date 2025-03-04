@@ -100,21 +100,39 @@ class UI(MDApp):
     def connect_to_server(self, ip):
         """Handle server connection"""
         try:
-            self.client = Client(ip, self.port, "User")  # You might want to get username from settings
+            self.client = Client(server_ip=ip, server_port=self.port, name="User",callback=self.receive_message)  # You might want to get username from settings
             self.client.connect()
             self.info_pass(f"Connected to server at {ip}")
             self.root.current = "chat_screen"  # Switch to chat screen when implemented
         except Exception as e:
             self.info_pass(f"Connection failed: {e}")
 
+    def add_chat_bubble(self, message, is_user=False):
+        chat_area = self.root.ids.chat_area
+        m = MessageCard(message=message, is_user=is_user)  
+        chat_area.add_widget(m)
+
     def send_message(self):
         message_entry = self.root.ids.message_entry
         message = message_entry.text.strip()
-        if message:
-            chat_area = self.root.ids.chat_area
-            m = MessageCard(message=message, is_user=True)
-            chat_area.add_widget(m)
-            message_entry.text = ""
+        if message and self.client:  # Check if client exists and message is not empty
+            try:
+                # Send message directly instead of using Clock
+                self.client.get_message_from_user(message)
+                message_entry.text = ""  # Clear the input field
+                Clock.schedule_once(lambda dt: self.add_chat_bubble(message, is_user=True))
+            except Exception as e:
+                self.info_pass(f"Failed to send message: {e}")
+                Clock.schedule_once(lambda dt: self.add_chat_bubble(message+" !!!couldn't send!!!", is_user=True))
+        elif not self.client:
+            self.info_pass("Not connected to any server")
+            Clock.schedule_once(lambda dt: self.add_chat_bubble("No Connection Found!!!", is_user=True))
+
+    def receive_message(self, message):
+        try:
+            Clock.schedule_once(lambda dt: self.add_chat_bubble(message,is_user=False))
+        except Exception as e:
+            print("---->Error receiving message")
 
     def refresh(self, *args):
         self.ssid = find_ssid()

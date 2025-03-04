@@ -353,7 +353,7 @@ MDScreenManager:
                         start_serverbtn_text.text = "Publish Server" \
                         if start_serverbtn_text.text == "Shutdown Server" else "Shutdown Server"
                         app.stop_server() if app.server_state=="Running" \
-                        else app.start_server(server_ip_number_input.text, server_port_number_input.text)
+                        else app.start_server(app.ip_address, server_port_number_input.text)
                     MDExtendedFabButtonIcon:
                         id:start_serverbtn_icon
                         icon: "server-network"
@@ -390,28 +390,6 @@ MDScreenManager:
                     allow_copy : True
                     allow_selection : True
                     on_copy: app.info_pass("Copied to Clipboard")
-            # IP Address display grid
-            MDGridLayout:
-                id: ip_address_grid_server
-                adaptive_height: True
-                cols: 3
-                spacing: 10
-                padding: 10
-                MDIcon:
-                    id: ip_address_icon_server
-                    icon : "ip-network-outline"
-                MDLabel:
-                    text: "IP Address"
-                    font_style : "Title"
-                    role : "medium"
-                    halign: "auto"
-                MDTextField:
-                    id: server_ip_number_input
-                    mode: "outlined"
-                    MDTextFieldHintText:
-                        text: "Host Address"
-                    MDTextFieldHelperText:
-                        text: "e.g:192.168.255.255"
             #Port Number Display Grid
             MDGridLayout:
                 id : port_grid_server

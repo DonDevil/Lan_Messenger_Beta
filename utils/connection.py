@@ -60,7 +60,8 @@ class Server:
                     self.__show_message(ip=ip,disconnected=True)
                     break
                 for client_socket_i in self.__client_sockets_list:
-                    client_socket_i.send(msg.encode('utf-8'))
+                    if client_socket_i != client_socket:
+                        client_socket_i.send(msg.encode('utf-8'))
             except Exception as e:
                 self.__client_sockets_list.remove(client_socket)
                 self.__show_message(ip=ip,disconnected=True)
@@ -78,12 +79,13 @@ class Server:
                 pass
 
 class Client:
-    def __init__(self, server_ip, server_port, name):
+    def __init__(self, server_ip, server_port, name,callback=None):
         self.connectiont_ip = server_ip
         self.connection_port = server_port
         self.__separator = "<SEP>"
         self.__connect_server = False
         self.__name = name
+        self.__message_callback = callback
         init()
         self.__colors = [Fore.BLUE, Fore.CYAN, Fore.GREEN, Fore.LIGHTBLACK_EX, 
             Fore.LIGHTBLUE_EX, Fore.LIGHTCYAN_EX, Fore.LIGHTGREEN_EX, 
@@ -117,26 +119,26 @@ class Client:
                 if message == "`249942":
                     print("[-] Disconnected.")
                     break
+                if self.__message_callback:
+                    self.__message_callback(message)
                 print("\n" + message)
-            except:
-                print("3 Error on Thread")
+            except Exception as e:
+                print(f"3 Error on Thread:{e}")
     
-    def get_message_from_console(self):
-        while self.__listen_to_server:
-            message = input("--->")
-            if message.lower() == 'q':
+    def get_message_from_user(self, message):
+        if self.__listen_to_server:
+            message = message
+            if message.lower() == '/disconnect':
                 key = "`249942"
                 message = f"{self.__text_color} {self.__name}{self.__separator}{key}"
-                self.__socket_object.send(message.encode())
+                self.__socket_object.send(message.encode('utf-8'))
                 self.disconnect()
-                exit()
-                break
             self.__broadcast_message(message=message)
 
     def __broadcast_message(self, message=""):
         __message_to_send = message
         __date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        __message_to_send = f"{self.__text_color}[{__date_now}] {self.__name}{self.__separator}{__message_to_send}{Fore.RESET}"
+        __message_to_send = f"{__date_now} {self.__name}{self.__separator}{__message_to_send}"
         try:
             self.__socket_object.send(__message_to_send.encode('utf-8'))
         except:
@@ -169,5 +171,5 @@ if __name__ == "__main__":
     
     #client = Client("127.0.0.1", 5002, "Nithish")
     #client.connect()
-    #client.get_message_from_console()
+    #client.get_message_from_user(message="")
 '''
